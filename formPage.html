@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Builder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid black;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    input,
+    select {
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button {
+      margin: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .file-input,
+    .checkbox-input,
+    .radiobox-input {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Form Builder</h1>
+
+  <!-- Form Builder -->
+  <form id="formBuilder">
+    <label for="inputName">Input Name:</label>
+    <input type="text" id="inputName" required><br>
+
+    <label for="inputType">Input Type:</label>
+    <select id="inputType" required onchange="toggleInputFields()">
+      <option value="text">Text</option>
+      <option value="radio">Radio</option>
+      <option value="email">Email</option>
+      <option value="dropdown">Dropdown</option>
+      <option value="checkbox">Checkbox</option>
+      <option value="file">File</option>
+      <option value="number">Number</option>
+    </select><br>
+
+    <label for="isRequired">Required:</label>
+    <input type="checkbox" id="isRequired"><br>
+
+    <label for="inputLabel">Input Label:</label>
+    <input type="text" id="inputLabel" required><br>
+
+    <!-- Additional input fields for File and Checkbox type -->
+    <div id="fileInput" class="file-input">
+      <label for="uploadFile">Upload File:</label>
+      <input type="file" id="uploadFile"><br>
+    </div>
+
+    <div id="checkboxInput" class="checkbox-input">
+      <label for="checkboxOption">Checkbox Option:</label>
+      <input type="checkbox" id="checkboxOption"><br>
+    </div>
+
+    <div id="radioboxInput" class="radiobox-input">
+      <label for="radioboxOption">Radiobox Option</label>
+      <input type="radio" id="radioboxOption"><br>
+    </div>
+
+    <!-- Add a component for Radio button -->
+
+    <button type="button" onclick="addElement()">Add Element</button>
+  </form>
+
+  <h2>Dynamic Table</h2>
+
+  <table id="dynamicTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Label</th>
+        <th>File</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic rows will be added here -->
+      <tr>
+        <td>email</td>
+        <td>email</td>
+        <td>true</td>
+        <td>Email</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>first_name</td>
+        <td>Text</td>
+        <td>true</td>
+        <td>First Name</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>resume</td>
+        <td>File</td>
+        <td>true</td>
+        <td>Upload Resume</td>
+        <td><a href="resume.pdf" download>resume.pdf</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Generate HTML Button -->
+  <button type="button" onclick="generateHTML()">Generate HTML</button>
+
+  <script>
+    // Function to toggle additional fields based on input type
+    function toggleInputFields() {
+      const inputType = document.getElementById('inputType').value;
+
+      // Hide all additional fields initially
+      document.getElementById('fileInput').style.display = 'none';
+      document.getElementById('checkboxInput').style.display = 'none';
+      document.getElementById('radioboxInput').style.display = 'none';
+
+      // Show specific fields based on selected input type
+      if (inputType === 'file') {
+        document.getElementById('fileInput').style.display = 'block';
+      } else if (inputType === 'checkbox') {
+        document.getElementById('checkboxInput').style.display = 'block';
+      } else if (inputType === 'radio') {
+        document.getElementById('radioboxInput').style.display = 'block';
+      }
+    }
+
+    // Function to add form element to the table and store in localStorage
+    function addElement() {
+      const inputName = document.getElementById('inputName').value;
+      const inputType = document.getElementById('inputType').value;
+      const isRequired = document.getElementById('isRequired').checked ? 'true' : 'false';
+      const inputLabel = document.getElementById('inputLabel').value;
+      const fileInput = document.getElementById('uploadFile');
+      let fileReference = '';
+
+      // Validate input
+      if (!inputName || !inputLabel) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Check if a file was uploaded and create a reference (show file name)
+      // if (inputType === 'file' && fileInput.files.length > 0) {
+      //   fileReference = fileInput.files[0].name;  // Store only the file name
+      // }
+      if (inputType === 'file' && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileReference = file.name;  // Store only the file name
+
+        // Convert the file into a data URL (or Blob for download)
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const fileContent = e.target.result;  // The file content as a Data URL
+
+          // Create a Blob URL for the file content (for download and preview)
+          const fileBlobURL = URL.createObjectURL(file);
+
+          // Create a new row for the table
+          const table = document.getElementById('dynamicTable').getElementsByTagName('tbody')[0];
+          const newRow = table.insertRow();
+
+          // Insert cells into the row and fill them with the form data
+          newRow.insertCell(0).innerText = inputName;
+          newRow.insertCell(1).innerText = inputType;
+          newRow.insertCell(2).innerText = isRequired;
+          newRow.insertCell(3).innerText = inputLabel;
+
+          // If the input type is file, create a link to download or view the file
+          const fileCell = newRow.insertCell(4);
+          fileCell.innerHTML = `
+        <a href="${fileBlobURL}" download="${fileReference}">Download ${fileReference}</a>
+        <br>
+        <a href="${fileBlobURL}" target="_blank">Open in new tab</a>
+      `;
+
+          // Store the new element in localStorage
+          const formData = {
+            name: inputName,
+            type: inputType,
+            required: isRequired,
+            label: inputLabel,
+            file: fileReference // Store file reference (file name)
+          };
+
+          // Get existing form data from localStorage or create a new array
+          let storedData = JSON.parse(localStorage.getItem('formData')) || [];
+          storedData.push(formData);
+
+          // Save the updated data back to localStorage
+          localStorage.setItem('formData', JSON.stringify(storedData));
+
+          // Reset the form fields
+          document.getElementById('formBuilder').reset();
+          toggleInputFields();
+        };
+
+        // Read the file as a data URL (can also use other methods like readAsArrayBuffer)
+        reader.readAsDataURL(file);
+      }
+
+      // Create a new row for the table
+      const table = document.getElementById('dynamicTable').getElementsByTagName('tbody')[0];
+      const newRow = table.insertRow();
+
+      // Insert cells into the row and fill them with the form data
+      newRow.insertCell(0).innerText = inputName;
+      newRow.insertCell(1).innerText = inputType;
+      newRow.insertCell(2).innerText = isRequired;
+      newRow.insertCell(3).innerText = inputLabel;
+
+      // If the input type is file, show the file name in the File column
+      const fileCell = newRow.insertCell(4);
+      if (inputType === 'file' && fileReference) {
+        fileCell.innerHTML = `<a href="#" onclick="downloadFile('${fileReference}')">${fileReference}</a>`;
+      }
+
+      // Store the new element in localStorage
+      const formData = {
+        name: inputName,
+        type: inputType,
+        required: isRequired,
+        label: inputLabel,
+        file: fileReference // Store file reference if available
+      };
+
+      // Get existing form data from localStorage or create a new array
+      let storedData = JSON.parse(localStorage.getItem('formData')) || [];
+      storedData.push(formData);
+
+      // Save the updated data back to localStorage
+      localStorage.setItem('formData', JSON.stringify(storedData));
+
+      // Reset the form fields
+      document.getElementById('formBuilder').reset();
+      toggleInputFields();
+    }
+
+    // Function to download the file (in this case, just display the file name)
+    function downloadFile(fileName) {
+      alert(`Downloading file: ${fileName}`);
+      // You can implement a proper download handler here if needed
+    }
+
+    // Load form data from localStorage when the page loads
+    window.onload = function () {
+      const storedData = JSON.parse(localStorage.getItem('formData')) || [];
+      const table = document.getElementById('dynamicTable').getElementsByTagName('tbody')[0];
+
+      storedData.forEach(item => {
+        const newRow = table.insertRow();
+        newRow.insertCell(0).innerText = item.name;
+        newRow.insertCell(1).innerText = item.type;
+        newRow.insertCell(2).innerText = item.required;
+        newRow.insertCell(3).innerText = item.label;
+
+        // If the input type is file, show the file reference
+        const fileCell = newRow.insertCell(4);
+        if (item.type === 'file' && item.file) {
+          fileCell.innerHTML = `<a href="#" onclick="downloadFile('${item.file}')">${item.file}</a>`;
+        }
+      });
+    };
+
+    // Function to generate the HTML for the table and open it in a new window
+    function generateHTML() {
+      const tableHTML = document.getElementById('dynamicTable').outerHTML;
+
+      // Generate a new HTML page that includes the table HTML
+      const newPageHTML = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Generated HTML</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            table, th, td {
+              border: 1px solid black;
+            }
+            th, td {
+              padding: 8px;
+              text-align: left;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Generated Table HTML</h1>
+          ${tableHTML}
+        </body>
+        </html>
+      `;
+
+
+      // Create a Blob containing the new HTML content
+      const blob = new Blob([newPageHTML], { type: 'text/html' });
+
+      // Generate a random file name (e.g., "generated_page_12345.html")
+      const randomFileName = 'generated_page_' + Math.floor(Math.random() * 100000) + '.html';
+
+      // Create a link element to trigger the download
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(blob);
+      downloadLink.download = randomFileName;  // Set the download attribute to the random file name
+
+      // Programmatically click the link to trigger the download
+      downloadLink.click();
+
+      // Open the generated HTML in a new window
+      const newWindow = window.open();
+      newWindow.document.write(newPageHTML);
+      newWindow.document.close();
+    }
+  </script>
+</body>
+
+</html>
